@@ -1,0 +1,71 @@
+buildscript {
+	ext {
+		kotlinVersion = '1.0.6'
+		springBootVersion = '1.5.2.RELEASE'
+	}
+	repositories {
+		jcenter()
+		mavenCentral()
+	}
+	dependencies {
+		classpath ("com.github.jacobono:gradle-jaxb-plugin:1.3.6")
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+		classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'com.github.jacobono.jaxb'
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-spring'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+jar {
+	manifest {
+		attributes 'Main-Class': 'OsmMapperApplication'
+	}
+	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	baseName = 'osm-mapper'
+	version = '0.0.1-SNAPSHOT'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+jaxb {
+	xsdDir = 'src/main/resources'
+	xjc {
+		generatePackage = 'io.github.artfly.osm.generated'
+	}
+}
+
+
+dependencies {
+	jaxb 'com.sun.xml.bind:jaxb-xjc:2.2.7-b41'
+	jaxb 'com.sun.xml.bind:jaxb-impl:2.2.7-b41'
+	jaxb 'javax.xml.bind:jaxb-api:2.2.7'
+	compile group: 'org.hibernate', name: 'hibernate-java8', version: '5.2.9.Final'
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	compile("org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}")
+	compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+	compile group: 'org.postgresql', name: 'postgresql', version: '42.0.0'
+	compile group: 'org.springframework', name: 'spring-oxm', version: '4.3.7.RELEASE'
+	compile group: 'org.apache.camel', name: 'camel-spring-boot-starter', version: '2.18.3'
+	compile group: 'org.apache.camel', name: 'camel-http4', version: '2.18.3'
+	compile group: 'org.apache.camel', name: 'camel-stream', version: '2.18.3'
+	compile group: 'org.apache.camel', name: 'camel-jpa', version: '2.18.3'
+	compile group: 'org.apache.camel', name: 'camel-stax', version: '2.18.3'
+    compile group: 'org.apache.camel', name: 'camel-jaxb', version: '2.18.3'
+	compile group: 'org.apache.camel', name: 'camel-jetty', version: '2.18.3'
+	runtime('com.h2database:h2')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+sourceSets {
+	main.java.srcDirs += 'src/main/kotlin'
+}
